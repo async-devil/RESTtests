@@ -1,0 +1,83 @@
+{
+  "editor.tabSize": 2,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "better-comments.multilineComments": true,
+  "better-comments.tags": [
+    {
+      "tag": "BUG:",
+      "color": "#ff0000",
+      "strikethrough": false,
+      "backgroundColor": "transparent",
+      "bold": true,
+      "italic": true
+    },
+    {
+      "tag": "!",
+      "color": "#a60000",
+      "strikethrough": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "?",
+      "color": "#1c4966",
+      "strikethrough": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "//",
+      "color": "#474747",
+      "strikethrough": true,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "^",
+      "color": "#c4990c",
+      "strikethrough": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "*",
+      "color": "#53682d",
+      "strikethrough": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "&",
+      "color": "#c60071",
+      "strikethrough": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "~",
+      "color": "#5a2776",
+      "strikethrough": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "tag": "todo",
+      "color": "#c76706",
+      "strikethrough": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": true
+    }
+  ]
+}
