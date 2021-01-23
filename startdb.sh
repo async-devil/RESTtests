@@ -1,0 +1,1 @@
+../../../../mongoDB/bin/mongod.exe --dbpath=../../../../mongoDB-data
