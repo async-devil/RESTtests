@@ -1,0 +1,26 @@
+{
+  "name": "rest-tests",
+  "description": "REST API tests",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start-db": "sh startdb.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/async-devil/RESTtests.git"
+  },
+  "keywords": [
+    "MongoDB",
+    "REST"
+  ],
+  "author": "async-devil",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/async-devil/RESTtests/issues"
+  },
+  "homepage": "https://github.com/async-devil/RESTtests#readme",
+  "dependencies": {
+    "mongodb": "^3.6.3"
+  }
+}
