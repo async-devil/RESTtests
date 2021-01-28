@@ -5,8 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "start": "npm run compile & node build/index.js",
-    "compile": "npx tsc --outFile build/index.js",
+    "compile": "npx tsc",
     "start-db": "sh startdb.sh",
+    "start-dev": "sh startdev.sh",
     "dev": "nodemon ./src/index.ts --watch ./src/**/*.*"
   },
   "repository": {
