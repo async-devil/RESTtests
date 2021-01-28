@@ -7,7 +7,7 @@
     "start": "npm run compile & node build/index.js",
     "compile": "npx tsc --outFile build/index.js",
     "start-db": "sh startdb.sh",
-    "nodemon": "nodemon ./src/index.ts --watch ./src/**/*.*"
+    "dev": "nodemon ./src/index.ts --watch ./src/**/*.*"
   },
   "repository": {
     "type": "git",
@@ -95,7 +95,7 @@
     ],
     "ext": "ts,hbs",
     "execMap": {
-      "ts": "npx tsc --outFile build/index.js"
+      "ts": "npx ts-node"
     }
   }
 }
