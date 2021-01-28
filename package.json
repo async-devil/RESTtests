@@ -2,9 +2,12 @@
   "name": "rest-tests",
   "description": "REST API tests",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/index.js",
   "scripts": {
-    "start-db": "sh startdb.sh"
+    "start": "npm run compile & node build/index.js",
+    "compile": "npx tsc --outFile build/index.js",
+    "start-db": "sh startdb.sh",
+    "nodemon": "nodemon ./src/index.ts --watch ./src/**/*.*"
   },
   "repository": {
     "type": "git",
@@ -12,7 +15,9 @@
   },
   "keywords": [
     "MongoDB",
-    "REST"
+    "RESTful API",
+    "Node.js",
+    "Express"
   ],
   "author": "async-devil",
   "license": "MIT",
@@ -22,6 +27,7 @@
   "homepage": "https://github.com/async-devil/RESTtests#readme",
   "dependencies": {
     "dotenv": "^8.2.0",
+    "express": "^4.17.1",
     "mongodb": "^3.6.3",
     "mongoose": "^5.11.13",
     "ts-node": "^9.1.1",
@@ -35,7 +41,7 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.0",
-    "nodemon": "^2.0.4",
+    "nodemon": "^2.0.7",
     "prettier": "2.1.2"
   },
   "prettier": {
@@ -78,6 +84,18 @@
     "rules": {
       "no-console": "off",
       "prettier/prettier": "error"
+    }
+  },
+  "nodemonConfig": {
+    "ignore": [
+      ".git",
+      "/node_modules",
+      "*.js",
+      "/.vscode"
+    ],
+    "ext": "ts,hbs",
+    "execMap": {
+      "ts": "npx tsc --outFile build/index.js"
     }
   }
 }
