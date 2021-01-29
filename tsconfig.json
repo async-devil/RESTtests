@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "target": "es2015",
-    "module": "system",
+    "target": "es6",
+    "module": "commonjs",
 
     "strict": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "allowJs": true,
+    "esModuleInterop": true,
 
     "outDir": "build"
   }
