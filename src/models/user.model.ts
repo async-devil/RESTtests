@@ -1,7 +1,14 @@
-const mongoose = require('mongoose');
-const validator = require('validator');
+import mongoose, { Schema, Document } from 'mongoose';
+import validator from 'validator';
 
-const User = mongoose.model('User', {
+export interface IUser extends Document {
+  name: string;
+  email: string;
+  age: number;
+  password: string;
+}
+
+const UserSchema: Schema = new Schema({
   name: {
     type: String,
     required: true,
@@ -11,13 +18,13 @@ const User = mongoose.model('User', {
     type: String,
     required: true,
     lowercase: true,
-    validate(value) {
+    validate(value: string) {
       if (!validator.isEmail(value)) throw new Error('Invalid email');
     },
   },
   age: {
     type: Number,
-    validate(value) {
+    validate(value: number) {
       if (value < 0) throw new Error('Age can`t be negative');
     },
     required: true,
@@ -27,7 +34,7 @@ const User = mongoose.model('User', {
     required: true,
     minlength: 6,
     maxlength: 14,
-    validate(value) {
+    validate(value: string) {
       if (value.search(/ /gm) !== -1) throw new Error('Spaces were detected');
       if (value.search(/[^a-zA-Z0-9@\.\?\+\*\^\$\\\(\)\[\]\{\}\|]/gm) !== -1)
         throw new Error('Invalid symbols detected');
@@ -38,4 +45,4 @@ const User = mongoose.model('User', {
   },
 });
 
-module.exports = User;
+export default mongoose.model<IUser>('User', UserSchema);
