@@ -33,12 +33,12 @@ const UserSchema: Schema = new Schema({
     type: String,
     required: true,
     minlength: 6,
-    maxlength: 14,
+    maxlength: 20,
     validate(value: string) {
       if (value.search(/ /gm) !== -1) throw new Error('Spaces were detected');
-      if (value.search(/[^a-zA-Z0-9@\.\?\+\*\^\$\\\(\)\[\]\{\}\|]/gm) !== -1)
+      if (value.search(/[^a-zA-Z0-9\@\.\?\+\*\^\$\\\(\)\[\]\{\}\|\~\-\%\'\"\`\<\>]/gm) !== -1)
         throw new Error('Invalid symbols detected');
-      if (value.search(/[@\.\?\+\*\^\$\\\(\)\[\]\{\}\|]/gm) === -1)
+      if (value.search(/[\@\.\?\+\*\^\$\\\(\)\[\]\{\}\|\~\-\%\'\"\`\<\>]/gm) === -1)
         throw new Error('Special symbols weren`t detected');
       if (value.search(/[0-9]/gm) === -1) throw new Error('Numbers weren`t detected');
     },
