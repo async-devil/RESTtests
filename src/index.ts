@@ -3,8 +3,8 @@ require('./db/mongoose');
 
 import express, { Request, Response } from 'express';
 
-import User, { IUser } from './models/user.model';
-import Task, { ITask } from './models/task.model';
+import User from './models/user.model';
+import Task from './models/task.model';
 import Methods from './Methods';
 
 const app = express();
@@ -23,7 +23,7 @@ app.put('/users', (req: Request, res: Response) => {
 
 app.get('/users', (req: Request, res: Response) => {
   Method.getAllExistingModelDocuments(User)
-    .then((users: IUser[]) => res.send(users))
+    .then((users) => res.send(users))
     .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
 });
 
@@ -49,7 +49,7 @@ app.put('/tasks', (req: Request, res: Response) => {
 
 app.get('/tasks', (req: Request, res: Response) => {
   Method.getAllExistingModelDocuments(Task)
-    .then((tasks: ITask[]) => res.send(tasks))
+    .then((tasks) => res.send(tasks))
     .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
 });
 
