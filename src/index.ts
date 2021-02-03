@@ -23,13 +23,13 @@ app.put('/users', (req: Request, res: Response) => {
 
 app.get('/users', (req: Request, res: Response) => {
   Method.getAllExistingModelDocuments(User)
-    .then((users) => res.send(users))
+    .then((users) => res.status(200).send(users))
     .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
 });
 
 app.get('/users/:id', (req: Request, res: Response) => {
   Method.getModelDocumentByID(User, req.params.id)
-    .then((user) => res.send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
 });
 
@@ -37,6 +37,12 @@ app.patch('/users/:id', (req: Request, res: Response) => {
   Method.updateModelDocumentByID(User, req.params.id, req.body, ['age', 'name'])
     .then((user) => res.status(200).send(user))
     .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
+});
+
+app.delete('/users/:id', (req: Request, res: Response) => {
+  Method.deleteModelDocumentByID(User, req.params.id)
+    .then((user) => res.status(200).send(user))
+    .catch((err) => res.status(typeof err == 'number' ? err : 500).send());
 });
 
 /*------------------------------------------------------------------------------------------*/
@@ -63,6 +69,12 @@ app.patch('/tasks/:id', (req: Request, res: Response) => {
   Method.updateModelDocumentByID(Task, req.params.id, req.body, ['description', 'completed'])
     .then((task) => res.status(200).send(task))
     .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
+});
+
+app.delete('/tasks/:id', (req: Request, res: Response) => {
+  Method.deleteModelDocumentByID(Task, req.params.id)
+    .then((task) => res.status(200).send(task))
+    .catch((err) => res.status(typeof err == 'number' ? err : 500).send());
 });
 /*------------------------------------------------------------------------------------------*/
 
