@@ -82,6 +82,25 @@ class Methods {
 
     return document;
   }
+
+  /**
+   * @param model Mongoose model
+   * @param id String version of deleting document ObjectID
+   * @returns {Promise<Document>} Deleted document
+   * @throws 404 or 400 HTTP status codes
+   * @example
+   * Method.deleteModelDocumentByID(User, req.params.id)
+    .then((user) => res.status(200).send(user))
+    .catch((err) => res.status(typeof err == 'number' ? err : 500).send());
+   */
+  public async deleteModelDocumentByID(model: Model<any>, id: string): Promise<Document<any>> {
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw 400;
+
+    const document: Document = await model.findByIdAndDelete(id);
+    if (!document) throw 404;
+
+    return document;
+  }
 }
 
 export { Methods as default };
