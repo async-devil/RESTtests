@@ -1,5 +1,9 @@
 import { Document, Model } from 'mongoose';
 
+interface IDocument extends Document {
+  [key: string]: any;
+}
+
 class Methods {
   /**
    * @param {Model<any>} model Mongoose model
@@ -29,7 +33,7 @@ class Methods {
     model: Model<any>,
     documentData: { [key: string]: any },
   ): Promise<Document<any>> {
-    const document: Document = new model(documentData);
+    const document: IDocument = new model(documentData);
     return await document.save();
   }
 
@@ -46,7 +50,7 @@ class Methods {
   public async getModelDocumentByID(model: Model<any>, id: string): Promise<Document<any>> {
     if (!id.match(/^[0-9a-fA-F]{24}$/)) throw 400;
 
-    const document: Document = await model.findById(id);
+    const document: IDocument = await model.findById(id);
     if (!document) throw 404;
 
     return document;
@@ -74,11 +78,13 @@ class Methods {
       throw 400;
     if (!id.match(/^[0-9a-fA-F]{24}$/)) throw 400;
 
-    const document: Document = await model.findByIdAndUpdate(id, documentData, {
-      new: true,
-      runValidators: true,
-    });
+    const document: IDocument = await model.findById(id);
     if (!document) throw 404;
+
+    Object.keys(documentData).forEach(
+      (property: string) => (document[property] = documentData[property]),
+    );
+    document.save();
 
     return document;
   }
@@ -96,7 +102,7 @@ class Methods {
   public async deleteModelDocumentByID(model: Model<any>, id: string): Promise<Document<any>> {
     if (!id.match(/^[0-9a-fA-F]{24}$/)) throw 400;
 
-    const document: Document = await model.findByIdAndDelete(id);
+    const document: IDocument = await model.findByIdAndDelete(id);
     if (!document) throw 404;
 
     return document;
