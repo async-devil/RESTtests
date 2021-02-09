@@ -53,12 +53,11 @@ class Methods {
     const document: IDocument = new model(documentData);
     try {
       await document.save();
+      return document;
     } catch (err) {
       if (this.dev) console.log(err);
-
       throw { status: 500, error: err.message };
     }
-    return document;
   }
 
   /**
@@ -77,7 +76,6 @@ class Methods {
     try {
       const document: IDocument = await model.findById(id);
       if (!document) throw { status: 404, error: StatusError.NotFound };
-
       return document;
     } catch (err) {
       if (this.dev) console.log(err);
@@ -143,7 +141,6 @@ class Methods {
     try {
       const document: IDocument = await model.findByIdAndDelete(id);
       if (!document) throw { status: 404, error: StatusError.NotFound };
-
       return document;
     } catch (err) {
       if (this.dev) console.log(err);
