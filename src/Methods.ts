@@ -4,20 +4,43 @@ interface IDocument extends Document {
   [key: string]: any;
 }
 
+interface ApiError {
+  status: number;
+  message: string;
+}
+
+enum StatusError {
+  NotFound = 'Document not found',
+  UnvalidID = 'Unvalid id detected',
+  UnvalidUpdateParams = 'Unallowed update parametrs detected',
+}
+
 class Methods {
+  /**
+   * Switch to allow dev errors logs
+   * @param {boolean} dev
+   */
+  private dev = true;
+
   /**
    * @param {Model<any>} model Mongoose model
    * @returns {Promise<Document[]>} Model objects
-   * @throws 404 HTTP status code
+   * @throws {status: number, message: string}
    * @example
    * Method.getAllExistingModelDocuments(User)
-    .then((users: IUser[]) => res.send(users))
-    .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
+    .then((users) => res.status(200).send(users))
+    .catch((err: any) => res.status(err.status).send(err.message));
    */
   public async getAllExistingModelDocuments(model: Model<any>): Promise<Document[]> {
-    const documents = await model.find({});
-    if (documents.length == 0) throw 404;
-    return documents;
+    try {
+      const documents = await model.find({});
+      if (documents.length == 0) throw { status: 404, message: StatusError.NotFound };
+      return documents;
+    } catch (err) {
+      if (this.dev) console.log(err);
+      if (err as ApiError) throw err;
+      throw { status: 500, message: err.message };
+    }
   }
 
   /**
@@ -27,33 +50,44 @@ class Methods {
    * @example 
    * Method.putModelDocument(User, req.body)
     .then((user) => res.status(201).send(user))
-    .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
+    .catch((err: any) => res.status(err.status).send(err.message));
    */
   public async putModelDocument(
     model: Model<any>,
     documentData: { [key: string]: any },
   ): Promise<Document<any>> {
     const document: IDocument = new model(documentData);
-    return await document.save();
+    try {
+      await document.save();
+      return document;
+    } catch (err) {
+      if (this.dev) console.log(err);
+      throw { status: 500, message: err.message };
+    }
   }
 
   /**
    * @param {Model<any>} model Mongoose model
    * @param {string} id String version of updating document ObjectID
    * @returns {Promise<Document>} Searched document
-   * @throws 404 or 400 HTTP status codes
+   * @throws {status: number, message: string}
    * @example
    * Method.getModelDocumentByID(User, req.params.id)
-    .then((user) => res.send(user))
-    .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
+    .then((user) => res.status(200).send(user))
+    .catch((err: any) => res.status(err.status).send(err.message));
    */
   public async getModelDocumentByID(model: Model<any>, id: string): Promise<Document<any>> {
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw 400;
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.UnvalidID };
 
-    const document: IDocument = await model.findById(id);
-    if (!document) throw 404;
-
-    return document;
+    try {
+      const document: IDocument = await model.findById(id);
+      if (!document) throw { status: 404, message: StatusError.NotFound };
+      return document;
+    } catch (err) {
+      if (this.dev) console.log(err);
+      if (err as ApiError) throw err;
+      throw { status: 500, message: err.message };
+    }
   }
 
   /**
@@ -62,11 +96,11 @@ class Methods {
    * @param {Object} documentData Update information
    * @param {Array<string>} allowedUpdateParams Parametrs which can be edited
    * @returns {Promise<Document>} Document after update
-   * @throws 404 or 400 HTTP status codes
+   * @throws {status: number, message: string}
    * @example
-   * Method.updateModelDocumentByID(User, req.params.id, req.body, ['age', 'name'])
+   * Method.updateModelDocumentByID(User, req.params.id, req.body, ['age', 'name', 'password'])
     .then((user) => res.status(200).send(user))
-    .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
+    .catch((err: any) => res.status(err.status).send(err.message));
    */
   public async updateModelDocumentByID(
     model: Model<any>,
@@ -74,38 +108,52 @@ class Methods {
     documentData: { [key: string]: any },
     allowedUpdateParams: string[] = [],
   ): Promise<Document<any>> {
+    //* If documentData contains un
     if (!Object.keys(documentData).every((param: string) => allowedUpdateParams.includes(param)))
-      throw 400;
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw 400;
+      throw { status: 403, message: StatusError.UnvalidUpdateParams };
+
+    //* If id is unvalid string ObjectID
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.UnvalidID };
 
     const document: IDocument = await model.findById(id);
-    if (!document) throw 404;
+    if (!document) throw { status: 404, message: StatusError.NotFound };
 
+    //* Updates document via keys of documentData and it`s values
     Object.keys(documentData).forEach(
       (property: string) => (document[property] = documentData[property]),
     );
-    document.save();
 
-    return document;
+    try {
+      await document.save();
+      return document;
+    } catch (err) {
+      if (this.dev) console.log(err);
+      throw { status: 500, message: err.message };
+    }
   }
 
   /**
    * @param model Mongoose model
    * @param id String version of deleting document ObjectID
    * @returns {Promise<Document>} Deleted document
-   * @throws 404 or 400 HTTP status codes
+   * @throws {status: number, message: string}
    * @example
-   * Method.deleteModelDocumentByID(User, req.params.id)
+   * Method.updateModelDocumentByID(User, req.params.id, req.body, ['age', 'name', 'password'])
     .then((user) => res.status(200).send(user))
-    .catch((err) => res.status(typeof err == 'number' ? err : 500).send());
+    .catch((err: any) => res.status(err.status).send(err.message));
    */
   public async deleteModelDocumentByID(model: Model<any>, id: string): Promise<Document<any>> {
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw 400;
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.UnvalidID };
 
-    const document: IDocument = await model.findByIdAndDelete(id);
-    if (!document) throw 404;
-
-    return document;
+    try {
+      const document: IDocument = await model.findByIdAndDelete(id);
+      if (!document) throw { status: 404, message: StatusError.NotFound };
+      return document;
+    } catch (err) {
+      if (this.dev) console.log(err);
+      if (err as ApiError) throw err;
+      throw { status: 500, message: err.message };
+    }
   }
 }
 
