@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+const bcrypt = require('bcrypt');
 import validator from 'validator';
 
 export interface IUser extends Document {
@@ -6,6 +7,10 @@ export interface IUser extends Document {
   email: string;
   age: number;
   password: string;
+}
+
+interface IDocument extends Document {
+  [key: string]: any;
 }
 
 const UserSchema: Schema = new Schema({
@@ -35,14 +40,20 @@ const UserSchema: Schema = new Schema({
     minlength: 6,
     maxlength: 20,
     validate(value: string) {
-      if (value.search(/ /gm) !== -1) throw new Error('Spaces were detected');
-      if (value.search(/[^a-zA-Z0-9\@\.\?\+\*\^\$\\\(\)\[\]\{\}\|\~\-\%\'\"\`\<\>]/gm) !== -1)
-        throw new Error('Invalid symbols detected');
-      if (value.search(/[\@\.\?\+\*\^\$\\\(\)\[\]\{\}\|\~\-\%\'\"\`\<\>]/gm) === -1)
-        throw new Error('Special symbols weren`t detected');
-      if (value.search(/[0-9]/gm) === -1) throw new Error('Numbers weren`t detected');
+      const strongPassword = new RegExp(
+        '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})',
+      );
+      if (!strongPassword.test(value)) throw new Error('Password is too weak');
     },
   },
+});
+
+UserSchema.pre('save', async function (this: IDocument, next) {
+  const user = this;
+
+  if (user.isModified('password')) user.password = await bcrypt.hash(user.password, 8);
+
+  next();
 });
 
 export default mongoose.model<IUser>('User', UserSchema);
