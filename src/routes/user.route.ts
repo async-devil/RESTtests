@@ -10,31 +10,34 @@ const route = Router();
 route.put('/users', (req: Request, res: Response) => {
   Method.putModelDocument(User, req.body)
     .then((user) => res.status(201).send(user))
-    .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
+    .catch((err: any) => res.status(err.status).send(err.message));
 });
 
 route.get('/users', (req: Request, res: Response) => {
   Method.getAllExistingModelDocuments(User)
     .then((users) => res.status(200).send(users))
-    .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
+    .catch((err: any) => res.status(err.status).send(err.message));
 });
 
 route.get('/users/:id', (req: Request, res: Response) => {
   Method.getModelDocumentByID(User, req.params.id)
     .then((user) => res.status(200).send(user))
-    .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
+    .catch((err: any) => {
+      console.log(err);
+      return res.status(err.status).send(err.message);
+    });
 });
 
 route.patch('/users/:id', (req: Request, res: Response) => {
-  Method.updateModelDocumentByID(User, req.params.id, req.body, ['age', 'name'])
+  Method.updateModelDocumentByID(User, req.params.id, req.body, ['age', 'name', 'password'])
     .then((user) => res.status(200).send(user))
-    .catch((err: any) => res.status(typeof err == 'number' ? err : 500).send());
+    .catch((err: any) => res.status(err.status).send(err.message));
 });
 
 route.delete('/users/:id', (req: Request, res: Response) => {
-  Method.deleteModelDocumentByID(User, req.params.id)
+  Method.updateModelDocumentByID(User, req.params.id, req.body, ['age', 'name', 'password'])
     .then((user) => res.status(200).send(user))
-    .catch((err) => res.status(typeof err == 'number' ? err : 500).send());
+    .catch((err: any) => res.status(err.status).send(err.message));
 });
 
 /*------------------------------------------------------------------------------------------*/
