@@ -1,4 +1,5 @@
 import { Document, Model } from 'mongoose';
+const bcrypt = require('bcrypt');
 
 interface IDocument extends Document {
   [key: string]: any;
@@ -11,8 +12,9 @@ interface ApiError {
 
 enum StatusError {
   NotFound = 'Document not found',
-  UnvalidID = 'Unvalid id detected',
-  UnvalidUpdateParams = 'Unallowed update parametrs detected',
+  InvalidID = 'Invalid id detected',
+  InvalidUpdateParams = 'Unallowed update parametrs detected',
+  NothingProvided = 'Nothing has provided',
 }
 
 class Methods {
@@ -77,7 +79,7 @@ class Methods {
     .catch((err: any) => res.status(err.status).send(err.message));
    */
   public async getModelDocumentByID(model: Model<any>, id: string): Promise<Document<any>> {
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.UnvalidID };
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.InvalidID };
 
     try {
       const document: IDocument = await model.findById(id);
@@ -110,10 +112,10 @@ class Methods {
   ): Promise<Document<any>> {
     //* If documentData contains un
     if (!Object.keys(documentData).every((param: string) => allowedUpdateParams.includes(param)))
-      throw { status: 403, message: StatusError.UnvalidUpdateParams };
+      throw { status: 403, message: StatusError.InvalidUpdateParams };
 
     //* If id is unvalid string ObjectID
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.UnvalidID };
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.InvalidID };
 
     const document: IDocument = await model.findById(id);
     if (!document) throw { status: 404, message: StatusError.NotFound };
@@ -143,12 +145,47 @@ class Methods {
     .catch((err: any) => res.status(err.status).send(err.message));
    */
   public async deleteModelDocumentByID(model: Model<any>, id: string): Promise<Document<any>> {
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.UnvalidID };
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.InvalidID };
 
     try {
       const document: IDocument = await model.findByIdAndDelete(id);
       if (!document) throw { status: 404, message: StatusError.NotFound };
       return document;
+    } catch (err) {
+      if (this.dev) console.log(err);
+      if (err as ApiError) throw err;
+      throw { status: 500, message: err.message };
+    }
+  }
+
+  public async loginByCredentialAndValidatePassword(
+    model: Model<any>,
+    credentials: { [key: string]: string; password: string },
+  ) {
+    try {
+      const credentialKeys = Object.keys(credentials);
+      const credentialValues = Object.values(credentials);
+      if (credentialKeys.includes('password') && credentialKeys.length === 2) {
+        const searchCredential =
+          credentialKeys[0] !== 'password'
+            ? { [`${credentialKeys[0]}`]: credentialValues[0] }
+            : { [`${credentialKeys[1]}`]: credentialValues[1] };
+
+        const passwordCredential =
+          credentialKeys[0] === 'password'
+            ? { [`${credentialKeys[0]}`]: credentialValues[0] }
+            : { [`${credentialKeys[1]}`]: credentialValues[1] };
+
+        const document = await model.findOne(searchCredential);
+        if (!document) throw { status: 401, message: 'Unable to login' };
+
+        const isMatch = await bcrypt.compare(passwordCredential.password, document.password);
+        if (!isMatch) throw { status: 401, message: 'Unable to login' };
+
+        return document;
+      } else {
+        throw { status: 400, message: 'Invalid request' };
+      }
     } catch (err) {
       if (this.dev) console.log(err);
       if (err as ApiError) throw err;

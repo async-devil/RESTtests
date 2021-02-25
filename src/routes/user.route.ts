@@ -40,6 +40,12 @@ route.delete('/users/:id', (req: Request, res: Response) => {
     .catch((err: any) => res.status(err.status).send(err.message));
 });
 
+route.post('/users/login', (req: Request, res: Response) => {
+  Method.loginByCredentialAndValidatePassword(User, req.body)
+    .then((user) => res.status(200).send(user))
+    .catch((err: any) => res.status(err.status).send(err.message));
+});
+
 /*------------------------------------------------------------------------------------------*/
 
 export { route as default };
