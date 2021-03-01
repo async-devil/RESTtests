@@ -39,7 +39,7 @@ const UserSchema: Schema = new Schema({
     type: String,
     required: true,
     minlength: 6,
-    maxlength: 20,
+    maxlength: 72,
     validate(value: string) {
       const strongPassword = new RegExp(
         '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})',
@@ -47,6 +47,14 @@ const UserSchema: Schema = new Schema({
       if (!strongPassword.test(value)) throw new Error('Password is too weak');
     },
   },
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
 });
 
 UserSchema.pre('save', async function (this: IDocument, next) {
