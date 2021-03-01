@@ -1,5 +1,6 @@
 import { Document, Model } from 'mongoose';
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 interface IDocument extends Document {
   [key: string]: any;
@@ -190,6 +191,26 @@ class Methods {
       if (this.dev) console.log(err);
       if (err as ApiError) throw err;
       throw { status: 500, message: err.message };
+    }
+  }
+
+  async generateAuthToken(document: IDocument) {
+    try {
+      console.log(document.id.toString());
+      const token = jwt.sign(
+        {
+          _id: document.id.toString(),
+        },
+        'SuperSecretCode',
+      );
+
+      document.tokens = document.tokens.concat({ token });
+      await document.save();
+
+      return token;
+    } catch (err) {
+      if (this.dev) console.log(err);
+      throw err;
     }
   }
 }
