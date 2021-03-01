@@ -9,7 +9,15 @@ const route = Router();
 
 route.put('/users', (req: Request, res: Response) => {
   Method.putModelDocument(User, req.body)
-    .then((user) => res.status(201).send(user))
+    .then((user) => {
+      Method.generateAuthToken(user)
+        .then((token) => {
+          res.status(201).send({ user, token });
+        })
+        .catch((err: any) => {
+          throw res.status(500).send(err.message);
+        });
+    })
     .catch((err: any) => res.status(err.status).send(err.message));
 });
 
@@ -42,7 +50,15 @@ route.delete('/users/:id', (req: Request, res: Response) => {
 
 route.post('/users/login', (req: Request, res: Response) => {
   Method.loginByCredentialAndValidatePassword(User, req.body)
-    .then((user) => res.status(200).send(user))
+    .then((user) => {
+      Method.generateAuthToken(user)
+        .then((token) => {
+          res.status(200).send({ user, token });
+        })
+        .catch((err: any) => {
+          throw res.status(err.status).send(err.message);
+        });
+    })
     .catch((err: any) => res.status(err.status).send(err.message));
 });
 
