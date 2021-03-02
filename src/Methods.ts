@@ -1,4 +1,4 @@
-import { Document, Model } from 'mongoose';
+import { Document, Model, ObjectId } from 'mongoose';
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -136,8 +136,8 @@ class Methods {
   }
 
   /**
-   * @param model Mongoose model
-   * @param id String version of deleting document ObjectID
+   * @param {Model<any>} model Mongoose model
+   * @param {String} id String version of deleting document ObjectID
    * @returns {Promise<Document>} Deleted document
    * @throws {status: number, message: string}
    * @example
@@ -158,7 +158,24 @@ class Methods {
       throw { status: 500, message: err.message };
     }
   }
-
+  /**
+   * @param {Model<any>} model Mongoose model
+   * @param {{[key: string]: string; password: string}} credentials Password and search credential
+   * @returns {Promise<String>} Token
+   * @throws {status: number, message: string}
+   * @example 
+   * Method.loginByCredentialAndValidatePassword(User, req.body)
+     .then((user) => {
+      Method.generateAuthToken(user)
+        .then((token) => {
+          res.status(200).send({ user, token });
+        })
+        .catch((err: any) => {
+          throw res.status(err.status).send(err.message);
+        });
+     })
+    .catch((err: any) => res.status(err.status).send(err.message));
+   */
   public async loginByCredentialAndValidatePassword(
     model: Model<any>,
     credentials: { [key: string]: string; password: string },
@@ -194,6 +211,12 @@ class Methods {
     }
   }
 
+  /**
+   * @param {Document} document Model document with ID and tokens properties
+   * @returns {String} JSON web token
+   * @example
+   * Method.generateAuthToken(user).then((token) => console.log(token))
+   */
   async generateAuthToken(document: IDocument) {
     try {
       console.log(document.id.toString());
@@ -203,7 +226,7 @@ class Methods {
         },
         'SuperSecretCode',
       );
-
+      /** @param {Array<{_id: ObjectId, token: string}>} tokens */
       document.tokens = document.tokens.concat({ token });
       await document.save();
 
