@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt';
 import validator from 'validator';
 
 export interface IUser extends Document {

@@ -1,6 +1,6 @@
 import { Document, Model, ObjectId } from 'mongoose';
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 interface IDocument extends Document {
   [key: string]: any;
