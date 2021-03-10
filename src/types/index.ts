@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
-declare namespace Express {
-  export interface Request {
+declare module 'express-serve-static-core' {
+  interface Request {
     user: Document<any>;
   }
 }
