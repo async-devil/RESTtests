@@ -1,6 +1,8 @@
 import { Request, Response, Router } from 'express';
+
 import User from '../models/user.model';
 import Methods from '../Methods';
+import auth from '../middleware/auth';
 
 const Method = new Methods();
 const route = Router();
@@ -21,10 +23,8 @@ route.put('/users', (req: Request, res: Response) => {
     .catch((err: any) => res.status(err.status).send(err.message));
 });
 
-route.get('/users', (req: Request, res: Response) => {
-  Method.getAllExistingModelDocuments(User)
-    .then((users) => res.status(200).send(users))
-    .catch((err: any) => res.status(err.status).send(err.message));
+route.get('/users/me', auth, (req: Request, res: Response) => {
+  res.send(req.user);
 });
 
 route.get('/users/:id', (req: Request, res: Response) => {

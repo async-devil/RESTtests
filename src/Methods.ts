@@ -219,7 +219,6 @@ class Methods {
    */
   async generateAuthToken(document: IDocument) {
     try {
-      console.log(document.id.toString());
       const token = jwt.sign(
         {
           _id: document.id.toString(),
