@@ -62,6 +62,30 @@ route.post('/users/login', (req: Request, res: Response) => {
     .catch((err: any) => res.status(err.status).send(err.message));
 });
 
+route.post('/users/logout', auth, async (req: Request, res: Response) => {
+  try {
+    req.user.tokens = req.user.tokens.filter((token) => {
+      return token.token !== req.token;
+    });
+    await req.user.save();
+
+    res.send();
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+route.post('/users/logoutAll', auth, async (req: Request, res: Response) => {
+  try {
+    req.user.tokens = [];
+    await req.user.save();
+
+    res.send();
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 /*------------------------------------------------------------------------------------------*/
 
 export { route as default };
