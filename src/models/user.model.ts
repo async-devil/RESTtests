@@ -7,6 +7,10 @@ export interface IUser extends Document {
   email: string;
   age: number;
   password: string;
+  tokens: {
+    token: string;
+    _id: string;
+  }[];
 }
 
 interface IDocument extends Document {
@@ -64,5 +68,15 @@ UserSchema.pre('save', async function (this: IDocument, next) {
 
   next();
 });
+
+UserSchema.methods.toJSON = function (this: IDocument) {
+  const user = this;
+  const userObject = user.toObject();
+
+  delete userObject.password;
+  delete userObject.tokens;
+
+  return userObject;
+};
 
 export default mongoose.model<IUser>('User', UserSchema);

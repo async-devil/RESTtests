@@ -18,9 +18,10 @@ const auth = async (req: Request, res: Response, next: NextFunction) => {
     }
 
     const user = await User.findOne({ _id: _id, 'tokens.token': token });
-    if (!user) throw { message: '', status: 404 };
+    if (!user) throw { message: 'Please authenticate', status: 404 };
 
     req.user = user;
+    req.token = token;
     next();
   } catch (err) {
     if (err.status) {
