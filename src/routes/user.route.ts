@@ -23,30 +23,33 @@ route.put('/users', (req: Request, res: Response) => {
     .catch((err: any) => res.status(err.status).send(err.message));
 });
 
+/*------------------------------------------------------------------------------------------*/
+
 route.get('/users/me', auth, (req: Request, res: Response) => {
   res.send(req.user);
 });
 
-route.get('/users/:id', (req: Request, res: Response) => {
-  Method.getModelDocumentByID(User, req.params.id)
-    .then((user) => res.status(200).send(user))
-    .catch((err: any) => {
-      console.log(err);
-      return res.status(err.status).send(err.message);
-    });
-});
+/*------------------------------------------------------------------------------------------*/
 
-route.patch('/users/:id', (req: Request, res: Response) => {
-  Method.updateModelDocumentByID(User, req.params.id, req.body, ['age', 'name', 'password'])
+route.patch('/users/me', auth, (req: Request, res: Response) => {
+  Method.updateModelDocumentByID(User, req.user._id.toString(), req.body, [
+    'age',
+    'name',
+    'password',
+  ])
     .then((user) => res.status(200).send(user))
     .catch((err: any) => res.status(err.status).send(err.message));
 });
 
-route.delete('/users/:id', (req: Request, res: Response) => {
-  Method.updateModelDocumentByID(User, req.params.id, req.body, ['age', 'name', 'password'])
+/*------------------------------------------------------------------------------------------*/
+
+route.delete('/users/me', auth, (req: Request, res: Response) => {
+  Method.deleteModelDocumentByID(User, req.user._id.toString())
     .then((user) => res.status(200).send(user))
     .catch((err: any) => res.status(err.status).send(err.message));
 });
+
+/*------------------------------------------------------------------------------------------*/
 
 route.post('/users/login', (req: Request, res: Response) => {
   Method.loginByCredentialAndValidatePassword(User, req.body)
@@ -62,6 +65,8 @@ route.post('/users/login', (req: Request, res: Response) => {
     .catch((err: any) => res.status(err.status).send(err.message));
 });
 
+/*------------------------------------------------------------------------------------------*/
+
 route.post('/users/logout', auth, async (req: Request, res: Response) => {
   try {
     req.user.tokens = req.user.tokens.filter((token) => {
@@ -74,6 +79,8 @@ route.post('/users/logout', auth, async (req: Request, res: Response) => {
     res.status(500).send(err.message);
   }
 });
+
+/*------------------------------------------------------------------------------------------*/
 
 route.post('/users/logoutAll', auth, async (req: Request, res: Response) => {
   try {
