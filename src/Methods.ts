@@ -65,6 +65,9 @@ class Methods {
       return document;
     } catch (err) {
       if (this.dev) console.log(err);
+      //? E11000 is duplicate mongo error code
+      if ((err as { message: string }).message.includes('E11000'))
+        throw { status: 409, message: 'Email is already taken' };
       throw { status: 500, message: err.message };
     }
   }
@@ -111,26 +114,27 @@ class Methods {
     documentData: { [key: string]: any },
     allowedUpdateParams: string[] = [],
   ): Promise<Document<any>> {
-    //* If documentData contains un
-    if (!Object.keys(documentData).every((param: string) => allowedUpdateParams.includes(param)))
-      throw { status: 403, message: StatusError.InvalidUpdateParams };
-
-    //* If id is unvalid string ObjectID
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.InvalidID };
-
-    const document: IDocument = await model.findById(id);
-    if (!document) throw { status: 404, message: StatusError.NotFound };
-
-    //* Updates document via keys of documentData and it`s values
-    Object.keys(documentData).forEach(
-      (property: string) => (document[property] = documentData[property]),
-    );
-
     try {
+      //* If documentData contains unallowed parametrs
+      if (!Object.keys(documentData).every((param: string) => allowedUpdateParams.includes(param)))
+        throw { status: 403, message: StatusError.InvalidUpdateParams };
+
+      //* If id is unvalid string ObjectID
+      if (!id.match(/^[0-9a-fA-F]{24}$/)) throw { status: 400, message: StatusError.InvalidID };
+
+      const document: IDocument = await model.findById(id);
+      if (!document) throw { status: 404, message: StatusError.NotFound };
+
+      //* Updates document via keys of documentData and it`s values
+      Object.keys(documentData).forEach(
+        (property: string) => (document[property] = documentData[property]),
+      );
+
       await document.save();
       return document;
     } catch (err) {
       if (this.dev) console.log(err);
+      if (err as ApiError) throw err;
       throw { status: 500, message: err.message };
     }
   }
