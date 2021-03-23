@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface ITask extends Document {
   desciption: string;
   completed: boolean;
+  owner: mongoose.Schema.Types.ObjectId;
 }
 
 const TaskSchema: Schema = new Schema({
@@ -13,6 +14,11 @@ const TaskSchema: Schema = new Schema({
   completed: {
     type: Boolean,
     default: false,
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User',
   },
 });
 

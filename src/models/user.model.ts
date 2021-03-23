@@ -61,6 +61,12 @@ const UserSchema: Schema = new Schema({
   ],
 });
 
+UserSchema.virtual('tasks', {
+  ref: 'Task',
+  localField: '_id',
+  foreignField: 'owner',
+});
+
 UserSchema.pre('save', async function (this: IDocument, next) {
   const user = this;
 
