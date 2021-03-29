@@ -16,11 +16,10 @@ route.put('/tasks', auth, (req: Request, res: Response) => {
 });
 
 route.get('/tasks', auth, async (req: Request, res: Response) => {
-  const _id = req.params.id;
-
   try {
-    const tasks = await Task.find({ owner: req.user._id });
+    await req.user.populate('tasks').execPopulate();
 
+    const tasks = req.user.tasks;
     if (tasks.length === 0) return res.status(404).send('There are no tasks');
 
     res.send(tasks);
@@ -30,27 +29,22 @@ route.get('/tasks', auth, async (req: Request, res: Response) => {
 });
 
 route.get('/tasks/:id', auth, async (req: Request, res: Response) => {
-  const _id = req.params.id;
-
-  try {
-    const task = await Task.findOne({ _id, owner: req.user._id });
-
-    if (!task) return res.status(404).send('Task not found');
-
-    res.send(task);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
-
-route.patch('/tasks/:id', (req: Request, res: Response) => {
-  Method.updateModelDocumentByID(Task, req.params.id, req.body, ['description', 'completed'])
+  Method.getModelDocumentByIDAndOwnerID(Task, req.params.id, req.user._id)
     .then((task) => res.status(200).send(task))
     .catch((err: any) => res.status(err.status).send(err.message));
 });
 
-route.delete('/tasks/:id', (req: Request, res: Response) => {
-  Method.deleteModelDocumentByID(Task, req.params.id)
+route.patch('/tasks/:id', auth, (req: Request, res: Response) => {
+  Method.updateModelDocumentByIDAndOwnerID(Task, req.params.id, req.user._id, req.body, [
+    'description',
+    'completed',
+  ])
+    .then((task) => res.status(200).send(task))
+    .catch((err: any) => res.status(err.status).send(err.message));
+});
+
+route.delete('/tasks/:id', auth, (req: Request, res: Response) => {
+  Method.deleteModelDocumentByIDAndOwnerID(Task, req.params.id, req.user._id)
     .then((task) => res.status(200).send(task))
     .catch((err: any) => res.status(err.status).send(err.message));
 });

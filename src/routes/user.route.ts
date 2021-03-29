@@ -20,7 +20,7 @@ route.put('/users', (req: Request, res: Response) => {
           throw res.status(500).send(err.message);
         });
     })
-    .catch((err: any) => res.status(err.status).send(err.message));
+    .catch((err: any) => res.status(err.message).send(err.message));
 });
 
 /*------------------------------------------------------------------------------------------*/
@@ -32,7 +32,7 @@ route.get('/users/me', auth, (req: Request, res: Response) => {
 /*------------------------------------------------------------------------------------------*/
 
 route.patch('/users/me', auth, (req: Request, res: Response) => {
-  Method.updateModelDocumentByID(User, req.user._id.toString(), req.body, [
+  Method.updateModelDocumentByIDAndOwnerID(User, req.user._id, req.user._id, req.body, [
     'age',
     'name',
     'password',
@@ -44,7 +44,7 @@ route.patch('/users/me', auth, (req: Request, res: Response) => {
 /*------------------------------------------------------------------------------------------*/
 
 route.delete('/users/me', auth, (req: Request, res: Response) => {
-  Method.deleteModelDocumentByID(User, req.user._id.toString())
+  Method.deleteModelDocumentByID(User, req.user._id)
     .then((user) => res.status(200).send(user))
     .catch((err: any) => res.status(err.status).send(err.message));
 });
