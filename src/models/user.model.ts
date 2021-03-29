@@ -2,6 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcrypt';
 import validator from 'validator';
 
+import Task, { ITask } from './task.model';
+
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -11,6 +13,7 @@ export interface IUser extends Document {
     token: string;
     _id: string;
   }[];
+  tasks: ITask[];
 }
 
 interface IDocument extends Document {
@@ -72,6 +75,12 @@ UserSchema.pre('save', async function (this: IDocument, next) {
 
   if (user.isModified('password')) user.password = await bcrypt.hash(user.password, 8);
 
+  next();
+});
+
+UserSchema.pre('remove', async function (this: IDocument, next) {
+  const user = this;
+  await Task.deleteMany({ owner: user._id });
   next();
 });
 
